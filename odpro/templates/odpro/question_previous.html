@@ -1,0 +1,27 @@
+    <div class="block">
+        <p class="is-size-6 has-text-weight-light has-text-light">The previous question was:</p>
+        <p class="is-size-5 has-text-white">{{ previous.previous_question }}</p>
+        <p class="is-size-6 has-text-weight-light has-text-light">Your answer was
+
+        {% if previous.previous_outcome %}
+	        <span class="has-text-weight-semibold has-text-success">
+        {% else %}
+	        <span class="has-text-weight-semibold has-text-danger">
+        {% endif %}
+            {{ previous.previous_outcome|yesno:"correct,incorrect" }}</span>
+
+        </p>
+    </div>
+
+    <div class="block is-size-6">
+    	{% include 'odpro/correct_answer.html' %}
+    </div>
+
+    <div class="block mx-4">
+        <div class="box">
+            <p class="is-size-6 has-text-weight-light has-text-white">Explanation:</p>
+	        <p class="is-size-6 has-text-white">{{ previous.previous_question.explanation }}</p>
+        </div>
+	</div>
+
+	<hr />

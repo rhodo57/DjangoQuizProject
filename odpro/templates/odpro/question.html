@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% load quiz_tags %}
+
+
+{% block content %}
+
+{% if previous.answers %}
+
+    {% include 'odpro/question_previous.html' %}
+
+{% endif %}
+
+{% if question %}
+    <div class="block">
+        {% if progress %}
+            <div>
+                <span class="subtitle is-5"><label for="prog"><strong>Question {{ progress.0|add:1 }}</strong> of {{ progress.1 }}</label></span>
+                <progress id="prog" max="{{ progress.1 }}" value="{{ progress.0 }}"></progress>
+            </div>
+        {% endif %}
+
+        <p> <span class="is-size-6 has-text-weight-light has-text-light">Topic:</span> <strong>{{ question.category }}</strong></p>
+    </div>
+
+    <div class="block">
+        <p class="is-size-5 has-text-white">{{ question.content }}</p>
+
+        {% if question.figure %}
+            <img src="{{ question.figure.url }}" alt="{{ question.content }}" />
+        {% endif %}
+
+        <form action="" method="POST">{% csrf_token %}
+            <input type=hidden name="question_id" value="{{ question.id }}">
+
+            <ul>
+	            {% for answer in form.answers %}
+	                <li class="is-size-6 has-text-light m-3">
+	                    {{ answer }}
+	                </li>
+	            {% endfor %}
+            </ul>
+
+            <button class="button is-primary ml-3" type="submit" value="Submit">Submit</button>
+        </form>
+    </div>
+{% endif %}
+
+<hr />
+
+
+{% endblock %}

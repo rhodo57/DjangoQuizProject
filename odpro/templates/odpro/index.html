@@ -1,0 +1,31 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="block">
+        <h1 class="title">ODPro</h1>
+    </div>
+
+    <div class="control my-6">
+        <form action="{%  url 'odpro:question' %}" method="get">
+            {% csrf_token %}
+            <button class="button is-link">Random Question</button>
+        </form>
+    </div>
+
+
+    <div class="control my-6">
+        <form action="{%  url 'odpro:categories' %}" method="get">
+            {% csrf_token %}
+            <button class="button is-link" >All Question Categories</button>
+        </form>
+    </div>
+
+       <div class="control my-6">
+        <form action="{%  url 'odpro:reset' %}" method="get">
+            {% csrf_token %}
+            <button class="button is-link" >Reset Session</button>
+        </form>
+    </div>
+
+{% endblock content %}

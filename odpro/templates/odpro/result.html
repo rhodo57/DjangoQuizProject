@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% load quiz_tags %}
+
+{% block content %}
+    {% if previous.answers %}
+        {% include 'odpro/question_previous.html' %}
+    {% endif %}
+
+    {% if max_score %}
+        <div>
+            <p class="title is-3 has-text-success">Quiz results</p>
+            <p class="subtitle is-5">{{ quiz.title }}</p>
+
+            <p class="title is-1 has-text-warning has-text-weight-bold my-3">{{ percent }}&#37;</p>
+
+            <div class="block">
+                <p class="is-size-5 has-text-white">
+                    You answered <span class="has-text-success has-text-weight-bold">{{ score }}</span> questions correctly out of <span class="has-text-success has-text-weight-bold">{{ max_score }}</span>.
+                </p>
+            </div>
+
+            {% if possible > 0 %}
+                <div class="block">
+                    <p class="is-size-6 has-text-white">Your session score is {{ session }} points out of a possible {{ possible }} points.</p>
+                </div>
+            {% endif %}
+
+            {% if quiz.pass_mark > 0 %}
+                <div class="block">
+                    {% if score >= quiz.pass_mark %}
+                        <p class="is-size-6 has-text-white">{{ quiz.success_text }}</p>
+                    {% else %}
+                        <p class="is-size-6 has-text-white">{{ quiz.fail_text }}</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+	{% endif %}
+
+    {% if incorrect_questions %}
+        <br />
+        <p class="title is-3 has-text-success">Incorrect Questions</p>
+        <p class="subtitle is-6 has-text-white">Review the below questions that you got wrong and try the exam again in the future.</p>
+        <br />
+
+        {% for question in incorrect_questions %}
+            <p class="title is-4 has-text-success">Question {{ forloop.counter }}</p>
+
+            <p class="is-size-5 has-text-white">{{ question.content }}</p>
+
+	        {% correct_answer_for_all question %}
+
+            {% if question.user_answer %}
+                <p>Your answer: {{ question|answer_choice_to_string:question.user_answer }}</p>
+            {% endif %}
+
+            <div class="block mx-4">
+                <div class="box">
+                    <p class="is-size-6 has-text-weight-light has-text-white">Explanation:</p>
+                    <p class="is-size-6 has-text-white">{{ previous.previous_question.explanation }}</p>
+                </div>
+            </div>
+
+	        <hr>
+
+        {% endfor %}
+    {% endif %}
+
+
+{% endblock %}

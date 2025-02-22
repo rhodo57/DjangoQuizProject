@@ -1,0 +1,25 @@
+{% if previous.answers %}
+
+  <table class="table is-bordered is-striped is-hoverable">
+    <tbody>
+  	  {% for answer in previous.answers %}
+        {% if answer.correct %}
+  	    <tr>
+  		  <td class="is-success">{{ answer.content }}</td>
+  		  <td><strong>This is the correct answer</strong></td>
+        {% else %}
+  		<tr>
+            <td><span class="has-text-primary">{{ answer.content }}</span></td>
+  		  <td>
+  			{% if previous.question_type.MCQuestion %}
+  			  {% if answer.id|add:"0" == previous.previous_answer|add:"0" %}
+  			    This was your answer
+  			  {% endif %}
+  			{% endif %}
+  		  </td>
+  	  {% endif %}
+  	    </tr>
+  	{% endfor %}
+    </tbody>
+  </table>
+{% endif %}

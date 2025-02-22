@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load quiz_tags %}
+{% block title %}
+Result of {{ sitting.quiz.title }} for {{ sitting.user }}
+{% endblock %}
+
+{% block content %}
+<h2>Quiz title: {{ sitting.quiz.title }}</h2>
+<h3>Category: {{ sitting.quiz.category }}</h3>
+<p>{{ sitting.quiz.description }}</p>
+<hr>
+<p>User: {{ sitting.user }}</p>
+<p>Completed: {{ sitting.end|date }}</p>
+<p>Score: {{ sitting.get_percent_correct }}%</p>
+
+<table class="table table-bordered table-striped">
+
+  <thead>
+	<tr>
+	  <th>Question</th>
+	  <th>User answer</th>
+	  <th></th>
+	  <th></th>
+	</tr>
+  </thead>
+
+  <tbody>
+{% for question in questions %}
+
+	<tr>
+      <td>
+        {{ question.content }}
+        {% if question.figure %}
+        <div style="max-width: 100px;"><img src="{{ question.figure.url }}" alt="{{ question.figure }}"/></div>
+        {% endif %}
+      </td>
+	  <td>{{ question|answer_choice_to_string:question.user_answer }}</td>
+	  <td>
+		{% if question.id in sitting.get_incorrect_questions %}
+		  <p>Incorrect</p>
+		{% else %}
+		  <p>Correct</p>
+		{% endif %}
+	  </td>
+	  <td>
+		<form action="" method="POST">{% csrf_token %}
+		  <input type=hidden name="qid" value="{{ question.id }}">
+		  <button type="submit" class="btn btn-warning">Toggle whether correct</button>
+		</form>
+	  </td>
+	</tr>
+
+{% endfor %}
+
+  </tbody>
+
+</table>
+{% endblock %}

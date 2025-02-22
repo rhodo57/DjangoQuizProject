@@ -1,0 +1,16 @@
+
+hr {
+  border: none;
+  border-top: 3px double #f09a;
+  color: #f09a;
+  text-align: center;
+  height: 5px;
+}
+
+label {
+    padding-right: 10px;
+}
+
+progress {
+    max-width: 250px;
+}

@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ODStudy</title>
+    <!-- Include the Bulma CSS framework for styling -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.1/css/bulma.min.css">
+    <link rel="stylesheet" href="{% static 'odpro/style.css' %}">
+</head>
+<body class="m-5">
+    {% if page != 'index' %}
+        <div class="block">
+            <form action="{% url 'odpro:index' %}" method="POST">
+                {% csrf_token %}
+                <button class="button is-link" name="home" value="Home">Home</button>
+            </form>
+        </div>
+    {% endif %}
+
+{% block content %}
+
+
+{% endblock content %}
+    {% if page != 'index' %}
+        <div class="block">
+            <form action="{% url 'odpro:index' %}" method="POST">
+                {% csrf_token %}
+                <button class="button is-link" name="home" value="Home">Home</button>
+            </form>
+        </div>
+    {% endif %}
+</body>
+</html>
