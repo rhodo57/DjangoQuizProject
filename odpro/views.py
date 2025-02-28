@@ -1,11 +1,13 @@
 import random
+from termios import TIOCPKT_DOSTOP
 
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.http import QueryDict, HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, FormView, DetailView
-from odpro.models import Quiz, Category, Question
+from odpro.models import Quiz, Category, Question, SubCategory
 from odpro.forms import QuestionForm
 
 
@@ -87,13 +89,12 @@ class QuestionShow(FormView):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        self.quiz = get_object_or_404(Quiz, url='random')
+        # self.quiz = get_object_or_404(Quiz, url='random')
 
     def dispatch(self, request, *args, **kwargs):
         # print("in dispatch")
         # ALL INCOMING REQUESTS GET ROUTED THROUGH HERE
-        # self.request = request
-        # self.quiz = get_object_or_404(Quiz, url='random')
+        self.quiz = get_object_or_404(Quiz, url=self.kwargs.get('quiz_name'))
         self.sitting = self.anon_load_sitting() # GET QUESTION LIST
         return super(QuestionShow, self).dispatch(request, *args, **kwargs)
 
@@ -127,7 +128,6 @@ class QuestionShow(FormView):
 
         self.request.POST = QueryDict() # CLEAR POST DATA
         return super(QuestionShow, self).get(self, self.request) # RETURN REQUEST W/O THE POST DATA
-        # return super(QuestionShow, self).form_valid(form)
 
 
     def get_context_data(self, **kwargs):
@@ -185,18 +185,9 @@ class QuestionShow(FormView):
 
     def form_valid_anon(self, form):
         # print("IN FORM_VALID_ANON")
-        # 'GUESS' IS THE ITEM THAT WAS SELECTED IN THE MCQUESTION
-        guess = form.cleaned_data['answers']
-        is_correct = self.question.check_if_correct(guess)
 
-        if is_correct:
-            self.request.session[self.quiz.anon_score_id()] += 1
-            anon_session_score(self.request.session, 1, 1)
-        else:
-            anon_session_score(self.request.session, 0, 1)
-            self.request.session[self.quiz.anon_q_data()]['incorrect_questions'].append(self.question.id)
+        guess, is_correct = self.anon_score_question(form)
 
-        # self.previous = {}
         self.previous = {
             'previous_answer': guess,
             'previous_outcome': is_correct,
@@ -208,6 +199,49 @@ class QuestionShow(FormView):
         question_list = self.request.session[self.quiz.anon_q_list()]
         question_list.pop(0)
         self.request.session[self.quiz.anon_q_list()] = question_list
+
+    def anon_score_question(self, form):
+        is_correct = False
+        correctly_answered = 0
+        incorrectly_answered = 0
+        guess = []
+        # print("in anon_score_question")
+        if self.question.multianswer is True:
+            # MCQUESTION HAS MULTIPLE CORRECT OPTIONS
+            # 'GUESS' IS THE ITEM(S) THAT WAS SELECTED IN THE MCQUESTION
+            guess = form.cleaned_data['answers']  # STRING IF RADIO, LIST IF CHECKBOX
+            q_choices = self.question.get_answer_list()
+            correct_answers = [x[0] for x in q_choices if self.question.check_if_correct(x[0]) is True]
+
+            # print("guess:" + str(guess))  # LIST CONTAINING ID OF SELECTED OPTIONS AS STRINGS
+            # print("correct_answers: " + str(correct_answers)) # LIST CONTAINING ID OF SELECTED OPTIONS AS INTEGERS
+
+            if not correct_answers:
+                raise ValueError("Correct answers cannot be empty")
+            num_correct_answers = len(correct_answers)
+            num_student_answers = len(guess)
+
+            for answer in guess:
+                if int(answer) in correct_answers:
+                    correctly_answered += 1
+                else:
+                    incorrectly_answered += 1
+
+            if correctly_answered == num_correct_answers and num_student_answers == num_correct_answers:
+                is_correct = True
+        else:
+            # MCQUESTION HAS SINGLE CORRECT OPTION
+            guess.append(form.cleaned_data['answers']) # ID OF SELECTED OPTION AS A STRING
+            # print("guess:" + str(guess))
+            is_correct = self.question.check_if_correct(guess[0]) # BOOLEAN
+
+        if is_correct:
+            self.request.session[self.quiz.anon_score_id()] += 1
+            anon_session_score(self.request.session, 1, 1)
+        else:
+            anon_session_score(self.request.session, 0, 1)
+            self.request.session[self.quiz.anon_q_data()]['incorrect_questions'].append(self.question.id)
+        return guess, is_correct # ALWAYS RETURN GUESS AS A LIST
 
     def final_result_anon(self):
         score = self.request.session[self.quiz.anon_score_id()]
@@ -268,6 +302,77 @@ def anon_session_score(session, to_add=0, possible=0):
 
 # ########################################################
 
+def makequiz(request, cat_id):
+    if request.method == 'POST':
+        # SELECT RANDOM GROUP OF QUESTIONS FROM SPECIFIED CATEGORY AND ADD THEM TO A QUIZ
+        q_num = int(request.POST['q_num']) # REQUESTED NUMBER OF QUESTIONS ON QUIZ
+        question_list = []
+        query_string = Q()
+        category = Category.objects.get(pk=cat_id)
+        title = category.category + ' Quiz'
+
+        subcat_list = list(SubCategory.objects.filter(category=category))
+        for subcat in subcat_list:
+            if subcat.sub_category in request.POST:
+                query_string |= Q(sub_category=subcat.id)
+
+        # NOTE: new_anon_quiz_session() creates question_list from quiz.get_questions() which contains only the ID of questions
+        # Using values() will yield a list containing dictionaries == {'id': id}
+        # quiz.question_set is the cleaned_data['questions'] from the QuizAdminForm
+        # cleaned_data == dictionary of form input fields and their values
+
+        # queryset = Question.objects.filter(category=cat_id).select_subclasses().order_by("?").values("id")[:q_num]
+
+        queryset = Question.objects.filter(
+            query_string,
+            category=cat_id).select_subclasses().order_by("?").values("id")[:q_num]
+
+        for entry in queryset:
+            question_list.append(entry["id"])
+
+        # print(question_list)
+
+        # CREATE QUIZ THEN ADD SELECTED QUESTIONS
+        quiz, created = Quiz.objects.update_or_create(
+            url='cat',
+            defaults={
+                'title': title,
+                'url': 'cat',
+                'pass_mark': 75,
+                'success_text': 'Congratulations! You got at least 75% of the questions correct.',
+                'fail_text': 'You did not get at least 75% of the questions correct.',
+            }
+        )
+        quiz.set_questions(question_list)
+        # PASS THIS QUIZ TO QUESTIONSHOW
+        return redirect("odpro:question", quiz_name=quiz.url)
+
+    else:
+        # TODO -- USE RANGE WIDGET TO SPECIFY NUMBER OF QUESTIONS
+        # TODO -- SELECT NUMBER OF QUESTIONS FROM EACH SUBCATEGORY TO INCLUDE IN QUIZ
+        # FIND SUBCATEGORIES WITH AT LEAST 1 QUESTION
+        subcat_q_count = []
+        category = Category.objects.get(pk=cat_id)
+        subcat_list = list(SubCategory.objects.filter(category=category).order_by("sub_category"))
+        # SELECT ALL QUESTIONS IN CATEGORY BY SUBCATEGORY
+        total_quest = len(list(Question.objects.filter(category=category)))
+        for subcat in subcat_list:
+            q_count = Question.objects.filter(category=category, sub_category=subcat).count()
+            if q_count > 0:
+                subcat_q_count.append((subcat.sub_category, q_count))
+        context = {
+            'category': category,
+            'cat_id': cat_id,
+            'subcat_q_count': subcat_q_count,
+            'total_quest': total_quest,
+        }
+        return render(request, "odpro/makequiz.html", {'context': context})
+
+
+
+
+
+# ########################################################
 def reset_session(request):
     request.session.flush()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

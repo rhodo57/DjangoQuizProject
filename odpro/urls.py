@@ -11,7 +11,9 @@ urlpatterns = [
     path("categories/", CategoriesListView.as_view(), name="categories"),
     # CATEGORY LIST
 
-    path("question/", QuestionShow.as_view(), name="question"),
+    path("category/<int:cat_id>/" , views.makequiz, name="makequiz"),
+
+    path("question/<str:quiz_name>", QuestionShow.as_view(), name="question"),
     # QUESTION DISPLAY
 
 path("reset/", views.reset_session, name="reset"),

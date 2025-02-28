@@ -1,0 +1,9 @@
+
+<span class="is-size-6 has-text-white">Subcategories:</span>
+{% for subcat in subcat_list %}
+    {% if forloop.last %}
+        {{ subcat }}
+    {% else %}
+        {{ subcat }},
+    {% endif %}
+{% endfor %}

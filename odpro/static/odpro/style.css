@@ -14,3 +14,17 @@ label {
 progress {
     max-width: 250px;
 }
+
+img {
+    max-width: 80%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    padding-top: 25px;
+    padding-bottom: 25px;
+}
+
+#q_warn {
+    width: 50%;
+    margin: 0 auto;
+}

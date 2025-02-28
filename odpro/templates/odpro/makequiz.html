@@ -1,0 +1,51 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="block">
+
+        <p class="title is-3 has-text-success">{{ context.category }} Questions</p>
+
+        <p class="is-size-5 has-text-white">Total Questions in this Category: {{ context.total_quest }}</p>
+    </div>
+
+    <form action="{%  url 'odpro:makequiz' cat_id=context.cat_id %}" method="post">
+    {% csrf_token %}
+        <div class="control my-5">
+            <button id="q_but" class="button is-primary" >Take {{ context.category }} Quiz</button>
+            <div class="content mt-3">
+                <label for="q_num" class="label">Questions on Quiz:</label>
+                <input type="number" id="q_num" name="q_num" value="1" min="1" max="{{ context.total_quest }}" onchange="sumQuestions()" autofocus required />
+                <div id="q_warn" class="my-2 content has-text-black has-background-warning"></div>
+            </div>
+
+        </div>
+
+        {% if context.subcat_q_count|length > 0 %}
+            <div class="block">
+                <p class="is-size-5 has-text-white">Select the subcategories to include on quiz:</p>
+                <table class="table is-bordered is-striped is-hoverable">
+                    <thead>
+                        <tr>
+                            <th>Subcategory</th>
+                            <th>Questions</th>
+                            <th>Include</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for subcat in context.subcat_q_count %}
+                            <tr>
+                                <td>{{ subcat.0 }}</td>
+                                <td>{{ subcat.1 }} questions</td>
+                                <td style="text-align: center;"><input type="checkbox" name="{{ subcat.0 }}" value="{{ subcat.1 }}" onchange="sumQuestions()" checked /></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p class="is-size-6 has-text-light">Total available questions: <span id="counter">0</span></p>
+            </div>
+        {% endif %}
+    </form>
+    <script src="{% static 'odpro/script.js' %}"></script>
+{% endblock %}

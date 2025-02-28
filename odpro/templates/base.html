@@ -25,7 +25,7 @@
 
 {% endblock content %}
     {% if page != 'index' %}
-        <div class="block">
+        <div class="block mt-3">
             <form action="{% url 'odpro:index' %}" method="POST">
                 {% csrf_token %}
                 <button class="button is-link" name="home" value="Home">Home</button>

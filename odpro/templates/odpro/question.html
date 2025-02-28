@@ -24,10 +24,10 @@
     </div>
 
     <div class="block">
-        <p class="is-size-5 has-text-white">{{ question.content }}</p>
+        <p class="is-size-6 has-text-white has-text-weight-medium">{{ question.content }}</p>
 
         {% if question.figure %}
-            <img src="{{ question.figure.url }}" alt="{{ question.content }}" />
+            <img src="{{ question.figure.url }}" alt="Image" />
         {% endif %}
 
         <form action="" method="POST">{% csrf_token %}
@@ -35,7 +35,7 @@
 
             <ul>
 	            {% for answer in form.answers %}
-	                <li class="is-size-6 has-text-light m-3">
+	                <li class="is-size-6 has-text-white m-3">
 	                    {{ answer }}
 	                </li>
 	            {% endfor %}

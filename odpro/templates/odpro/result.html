@@ -28,7 +28,7 @@
 
             {% if quiz.pass_mark > 0 %}
                 <div class="block">
-                    {% if score >= quiz.pass_mark %}
+                    {% if percent >= quiz.pass_mark %}
                         <p class="is-size-6 has-text-white">{{ quiz.success_text }}</p>
                     {% else %}
                         <p class="is-size-6 has-text-white">{{ quiz.fail_text }}</p>
@@ -41,13 +41,13 @@
     {% if incorrect_questions %}
         <br />
         <p class="title is-3 has-text-success">Incorrect Questions</p>
-        <p class="subtitle is-6 has-text-white">Review the below questions that you got wrong and try the exam again in the future.</p>
+        <p class="subtitle is-6 has-text-white mt-2">Review the below questions that you got wrong and try the exam again in the future.</p>
         <br />
 
         {% for question in incorrect_questions %}
             <p class="title is-4 has-text-success">Question {{ forloop.counter }}</p>
 
-            <p class="is-size-5 has-text-white">{{ question.content }}</p>
+            <p class="is-size-6 has-text-white has-text-weight-medium">{{ question.content }}</p>
 
 	        {% correct_answer_for_all question %}
 

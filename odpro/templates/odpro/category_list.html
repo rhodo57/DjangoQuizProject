@@ -1,13 +1,17 @@
 {% extends 'base.html' %}
-{% block title %}All Quizzes{% endblock %}
+
+{% load quiz_tags %}
 
 {% block content %}
-<h2>Category list</h2>
+<p class="title is-3 has-text-success">Question Categories</p>
 
-<ul>
   {% for cat in object_list %}
-  <li> {{ cat.category }}  </li>
+      <div class="block ml-3">
+          <p class="is-size-5 has-text-white"><a href="{% url 'odpro:makequiz' cat_id=cat.id %}">{{ cat.category }}</a></p>
+          <div class="ml-5">
+              {% subcategories_list_for_category cat %}
+          </div>
+      </div>
   {% endfor %}
-</ul>
 
 {% endblock %}

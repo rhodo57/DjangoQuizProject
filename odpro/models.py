@@ -63,7 +63,8 @@ class SubCategory(models.Model):
     def __str__(self):
         return self.sub_category + " (" + self.category.category + ")"
 
-
+    def subcategory_name(self):
+        return self.sub_category
 
 class Quiz(models.Model):
 
@@ -171,6 +172,9 @@ class Quiz(models.Model):
     def get_questions(self):
         return self.question_set.all().select_subclasses()
 
+    def set_questions(self, questions):
+        self.question_set.set(questions)
+
     @property
     def get_max_score(self):
         return self.get_questions().count()
@@ -207,7 +211,7 @@ class Question(models.Model):
         on_delete=models.CASCADE, )
 
     figure = models.ImageField(
-        upload_to="images/",
+        upload_to="images",
         null=True,
         blank=True,
         verbose_name="Figure", )
@@ -253,12 +257,6 @@ class MCQuestion(Question):
         help_text="If yes, the question has more than one correct answer.",)
 
     def check_if_correct(self, guess):
-        if self.multianswer:
-            # MULTIPLE CORRECT ANSWERS
-            # The CheckboxSelectMultiple field's data is returned as a list of strings,
-            # where each string represents the value of a selected checkbox.
-            pass
-        else:
             answer = Answer.objects.get(id=guess)
             if answer.correct is True:
                 return True
