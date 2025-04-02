@@ -2,12 +2,12 @@ import random
 from termios import TIOCPKT_DOSTOP
 
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
+from django.db.models import Q, F
 from django.http import QueryDict, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, FormView, DetailView
-from odpro.models import Quiz, Category, Question, SubCategory
+from odpro.models import Quiz, Category, Question, SubCategory, Answer
 from odpro.forms import QuestionForm
 
 
@@ -89,7 +89,6 @@ class QuestionShow(FormView):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        # self.quiz = get_object_or_404(Quiz, url='random')
 
     def dispatch(self, request, *args, **kwargs):
         # print("in dispatch")
@@ -193,6 +192,7 @@ class QuestionShow(FormView):
             'previous_outcome': is_correct,
             'previous_question': self.question,
             'answers': self.question.get_answers(),
+            'difficulty': self.question.get_difficulty(),
             'question_type': {self.question.__class__.__name__: True}
         }
         # POP QUESTION OFF LIST
@@ -206,6 +206,7 @@ class QuestionShow(FormView):
         incorrectly_answered = 0
         guess = []
         # print("in anon_score_question")
+        self.question.usage_count = F('usage_count') + 1
         if self.question.multianswer is True:
             # MCQUESTION HAS MULTIPLE CORRECT OPTIONS
             # 'GUESS' IS THE ITEM(S) THAT WAS SELECTED IN THE MCQUESTION
@@ -222,6 +223,9 @@ class QuestionShow(FormView):
             num_student_answers = len(guess)
 
             for answer in guess:
+                ans = Answer.objects.get(pk=int(answer))
+                ans.usage_count = F('usage_count') + 1
+                ans.save(update_fields=['usage_count'])
                 if int(answer) in correct_answers:
                     correctly_answered += 1
                 else:
@@ -232,15 +236,22 @@ class QuestionShow(FormView):
         else:
             # MCQUESTION HAS SINGLE CORRECT OPTION
             guess.append(form.cleaned_data['answers']) # ID OF SELECTED OPTION AS A STRING
+            ans = Answer.objects.get(pk=guess[0])
+            ans.usage_count = F('usage_count') + 1
+            ans.save(update_fields=['usage_count'])
             # print("guess:" + str(guess))
             is_correct = self.question.check_if_correct(guess[0]) # BOOLEAN
 
         if is_correct:
+            self.question.correct_count = F('correct_count') + 1
             self.request.session[self.quiz.anon_score_id()] += 1
             anon_session_score(self.request.session, 1, 1)
         else:
             anon_session_score(self.request.session, 0, 1)
             self.request.session[self.quiz.anon_q_data()]['incorrect_questions'].append(self.question.id)
+
+        # UPDATE DB
+        self.question.save(update_fields=['correct_count', 'usage_count'])
         return guess, is_correct # ALWAYS RETURN GUESS AS A LIST
 
     def final_result_anon(self):
@@ -348,7 +359,6 @@ def makequiz(request, cat_id):
         return redirect("odpro:question", quiz_name=quiz.url)
 
     else:
-        # TODO -- USE RANGE WIDGET TO SPECIFY NUMBER OF QUESTIONS
         # TODO -- SELECT NUMBER OF QUESTIONS FROM EACH SUBCATEGORY TO INCLUDE IN QUIZ
         # FIND SUBCATEGORIES WITH AT LEAST 1 QUESTION
         subcat_q_count = []

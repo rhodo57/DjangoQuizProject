@@ -216,6 +216,12 @@ class Question(models.Model):
         blank=True,
         verbose_name="Figure", )
 
+    video = models.FileField(
+        upload_to="images",
+        null=True,
+        blank=True,
+        verbose_name="Video", )
+
     content = models.TextField(
         blank=False,
         null=False,
@@ -226,8 +232,47 @@ class Question(models.Model):
         blank=True,
         null=True,
         verbose_name="Explanation",
-        help_text="Explanation to be shown after the question has been answered",
-    )
+        help_text="Explanation to be shown after the question has been answered", )
+
+    exp_img = models.ImageField(
+        upload_to="images",
+        null=True,
+        blank=True,
+        verbose_name="Explanation Image",)
+
+    references = models.ManyToManyField(
+        'References',
+        blank=True,
+        verbose_name="References", )
+
+    usage_count = models.PositiveIntegerField(
+        blank=False,
+        null=False,
+        verbose_name="Usage count",
+        default=0,
+        help_text="Number of times question has been used", )
+
+    correct_count = models.PositiveIntegerField(
+        blank=False,
+        null=False,
+        verbose_name="Correctly answered count",
+        default=0,
+        help_text="Number of times question has been correctly answered", )
+
+    def get_difficulty(self):
+        self.refresh_from_db()
+        if self.usage_count > 0:
+            n = round((self.correct_count / self.usage_count)*100)
+            if n >= 80:
+                level = "Easy"
+            elif n >= 60:
+                level = "Moderate"
+            else:
+                level = "Hard"
+        else:
+            n = 0
+            level = "N/A"
+        return [str(n), level, self.usage_count]
 
     objects = InheritanceManager()
 
@@ -273,6 +318,7 @@ class MCQuestion(Question):
         return queryset
 
     def get_answers(self):
+        self.refresh_from_db()
         return self.order_answers(Answer.objects.filter(question=self))
 
     def get_answer_list(self):
@@ -307,9 +353,37 @@ class Answer(models.Model):
         null=False,
         help_text="Is this answer correct?",)
 
+    usage_count = models.PositiveIntegerField(
+        blank=False,
+        null=False,
+        verbose_name="Usage count",
+        default=0,
+        help_text="Number of times this option has been selected",)
+
+
     class Meta:
         verbose_name = "Answer"
         verbose_name_plural = "Answers"
 
     def __str__(self):
         return self.content
+
+class References(models.Model):
+
+    name = models.CharField(
+        verbose_name="Name",
+        max_length=100,
+        blank=False,
+        null=False,)
+
+    url = models.URLField(
+        verbose_name="link",
+        blank=False,
+        null=False, )
+
+    class Meta:
+        verbose_name = "References"
+
+    def __str__(self):
+        return self.name
+

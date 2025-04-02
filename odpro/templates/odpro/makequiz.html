@@ -1,6 +1,6 @@
 
 {% extends 'base.html' %}
-{% load static %}
+
 {% block content %}
 
     <div class="block">
@@ -17,7 +17,7 @@
             <div class="content mt-3">
                 <label for="q_num" class="label">Questions on Quiz:</label>
                 <input type="number" id="q_num" name="q_num" value="1" min="1" max="{{ context.total_quest }}" onchange="sumQuestions()" autofocus required />
-                <div id="q_warn" class="my-2 content has-text-black has-background-warning"></div>
+                <div id="q_warn" style="display:none;" class="content has-text-black has-background-warning">Insufficient questions to generate quiz. Increase number of categories or decrease number of questions on quiz.</div>
             </div>
 
         </div>
@@ -47,5 +47,5 @@
             </div>
         {% endif %}
     </form>
-    <script src="{% static 'odpro/script.js' %}"></script>
+
 {% endblock %}

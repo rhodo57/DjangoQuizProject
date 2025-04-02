@@ -1,3 +1,4 @@
+{% load static %}
 {% if previous.answers %}
 
   <table class="table is-bordered is-striped is-hoverable">
@@ -14,8 +15,11 @@
                            Your selected this
                       {% endif %}
                   </td>
-
               {% endif %}
+              <td>
+                  {% widthratio answer.usage_count previous.difficulty.2 200 as width %}
+                  <img src="{% static 'odpro/pixel-1.png' %}" style="width: {{ width|add:2}}px; height: 5px;" alt="Popularity of this answer choice" title="Popularity of this answer choice">
+              </td>
               </tr>
           {% endfor %}
       </tbody>

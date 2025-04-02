@@ -47,7 +47,7 @@
         {% for question in incorrect_questions %}
             <p class="title is-4 has-text-success">Question {{ forloop.counter }}</p>
 
-            <p class="is-size-6 has-text-white has-text-weight-medium">{{ question.content }}</p>
+            <p class="is-size-6 has-text-white has-text-weight-medium mb-2" style="max-width: 80%;">{{ question.content }}</p>
 
 	        {% correct_answer_for_all question %}
 
@@ -58,7 +58,7 @@
             <div class="block mx-4">
                 <div class="box">
                     <p class="is-size-6 has-text-weight-light has-text-white">Explanation:</p>
-                    <p class="is-size-6 has-text-white">{{ previous.previous_question.explanation }}</p>
+                    <p class="is-size-6 has-text-white" style="max-width: 80%;">{{ previous.previous_question.explanation }}</p>
                 </div>
             </div>
 

@@ -2,6 +2,11 @@ window.onload = function() {
     sumQuestions();
 }
 
+
+
+
+  // Calculate number of questions available in selected categories
+  // Warn if insufficient questions for length of quiz
   function sumQuestions() {
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
     const counterSpan = document. getElementById('counter');
@@ -19,10 +24,10 @@ window.onload = function() {
 
     if (numberField.valueAsNumber > checkedValues) {
         btnQuiz.disabled = true;
-        divWarn.textContent = 'Insufficient questions to generate quiz. Increase number of categories or decrease number of questions on quiz.'
+        divWarn.style.display = 'block';
       } else {
         btnQuiz.disabled = false;
-        divWarn.textContent = ''
+        divWarn.style.display = 'none';
     }
   }
 

@@ -3,8 +3,9 @@ from unicodedata import category
 from django.contrib import admin
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.db.backends.ddl_references import Reference
 
-from .models import Category, SubCategory, Quiz, Question, MCQuestion, Answer
+from .models import Category, SubCategory, Quiz, Question, MCQuestion, Answer, References
 
 
 class AnswerInline(admin.TabularInline):
@@ -59,12 +60,16 @@ class SubCategoryAdmin(admin.ModelAdmin):
     list_display = ('sub_category', 'category')
     list_filter = ['category']
 
+@admin.register(References)
+class ReferencesAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
 class MCQuestionAdmin(admin.ModelAdmin):
     list_display = ('content', 'category')
     list_filter = ['category']
-    fields = ['content', 'category', 'sub_category', 'figure', 'quiz', 'explanation', 'answer_order', 'multianswer']
+    fields = ['content', 'category', 'sub_category', 'figure', 'video', 'quiz', 'explanation', 'exp_img', 'references', 'answer_order', 'multianswer']
     search_fields = ('content', 'explanation')
-    filter_horizontal = ['quiz']
+    filter_horizontal = ['quiz', 'references']
     inlines = [AnswerInline]
 
 

@@ -23,11 +23,20 @@
         <p> <span class="is-size-6 has-text-weight-light has-text-light">Topic:</span> <strong>{{ question.category }}</strong></p>
     </div>
 
-    <div class="block">
+    <div class="block" style="max-width: 80%;">
         <p class="is-size-6 has-text-white has-text-weight-medium">{{ question.content }}</p>
 
         {% if question.figure %}
-            <img src="{{ question.figure.url }}" alt="Image" />
+            <p><img id="q_img" src="{{ question.figure.url }}" alt="Image" /></p>
+        {% endif %}
+
+        {% if question.video %}
+            <p>
+                <video id="q_vid" controls autoplay>
+                    <source src="{{ question.video.url }}" type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            </p>
         {% endif %}
 
         <form action="" method="POST">{% csrf_token %}
