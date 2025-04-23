@@ -1,11 +1,13 @@
 from unicodedata import category
 
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.db.backends.ddl_references import Reference
 
-from .models import Category, SubCategory, Quiz, Question, MCQuestion, Answer, References
+
+from .models import Category, SubCategory, Quiz, Question, MCQuestion, Answer, References, OdproUser
 
 
 class AnswerInline(admin.TabularInline):
@@ -63,6 +65,10 @@ class SubCategoryAdmin(admin.ModelAdmin):
 @admin.register(References)
 class ReferencesAdmin(admin.ModelAdmin):
     search_fields = ['name']
+
+@admin.register(OdproUser)
+class OdproUserAdmin(UserAdmin):
+    pass
 
 class MCQuestionAdmin(admin.ModelAdmin):
     list_display = ('content', 'category')

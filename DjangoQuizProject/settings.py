@@ -55,8 +55,7 @@ ROOT_URLCONF = 'DjangoQuizProject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -89,6 +88,8 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
+
+AUTH_USER_MODEL = 'odpro.OdproUser'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -130,3 +131,12 @@ MEDIA_URL = '/media/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Redirect to home URL after login (Default redirects to /accounts/profile/)
+LOGIN_REDIRECT_URL = '/odpro'
+
+# URL of the login page. (Default is '/accounts/login/')
+LOGIN_URL = '/accounts/login/'
+
+# SENDS EMAIL TO THE CONSOLE, NOT A REAL EMAIL SERVER.
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

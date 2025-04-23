@@ -22,7 +22,8 @@ from DjangoQuizProject import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('odpro/', include('odpro.urls')),
+    path('', include('odpro.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
 
 if settings.DEBUG:

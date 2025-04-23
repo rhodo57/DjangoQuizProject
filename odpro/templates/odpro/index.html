@@ -2,9 +2,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="block">
-        <h1 class="title">ODPro</h1>
-    </div>
+
 
     <div class="control my-6">
         <form action="{%  url 'odpro:question' quiz_name='random' %}" method="get">
@@ -21,7 +19,16 @@
         </form>
     </div>
 
-       <div class="control my-6">
+    {% if user.is_authenticated %}
+        <div class="control my-6">
+            <form action="{%  url 'odpro:odprofile' %}" method="get">
+                {% csrf_token %}
+                <button class="button is-link" >ODPro Profile</button>
+            </form>
+        </div>
+    {% endif %}
+
+    <div class="control my-6">
         <form action="{%  url 'odpro:reset' %}" method="get">
             {% csrf_token %}
             <button class="button is-link" >Reset Session</button>

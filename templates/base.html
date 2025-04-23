@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ODStudy</title>
+    <!-- Include the Bulma CSS framework for styling -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.1/css/bulma.min.css">
+    <link rel="stylesheet" href="{% static 'odpro/style.css' %}">
+</head>
+<body class="m-5">
+
+    <div class="block">
+        <h1 class="title">ODPro</h1>
+    </div>
+
+    <div class="level is-mobile">
+        <div class="level-left">
+
+            {% if page != 'index' %}
+                <div class="level-item">
+                    <form action="{% url 'odpro:index' %}" method="POST">
+                        {% csrf_token %}
+                        <button class="button is-link" name="home" value="Home">Home</button>
+                    </form>
+                </div>
+            {% endif %}
+
+            <div class="level-item">
+                {% if user.is_authenticated %}
+                    <form action="{% url 'logout' %}" method="POST">
+                        {% csrf_token %}
+                        <button class="button">Log out</button>
+                    </form>
+                {% else %}
+                    <a class="button mr-3" href="{% url 'login' %}">Log in</a> or <a class="button ml-3" href="{% url 'odpro:register' %}">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% block content %}
+
+
+{% endblock content %}
+    {% if page != 'index' %}
+        <div class="block mt-3">
+            <form action="{% url 'odpro:index' %}" method="POST">
+                {% csrf_token %}
+                <button class="button is-link" name="home" value="Home">Home</button>
+            </form>
+        </div>
+    {% endif %}
+<script src="{% static 'odpro/script.js' %}"></script>
+</body>
+</html>

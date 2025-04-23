@@ -11,11 +11,14 @@
     <link rel="stylesheet" href="{% static 'odpro/style.css' %}">
 </head>
 <body class="m-5">
+
+
+
     {% if page != 'index' %}
         <div class="block">
             <form action="{% url 'odpro:index' %}" method="POST">
                 {% csrf_token %}
-                <button class="button is-link" name="home" value="Home">Home</button>
+                    <button class="button is-link" name="home" value="Home">Home</button>
             </form>
         </div>
     {% endif %}

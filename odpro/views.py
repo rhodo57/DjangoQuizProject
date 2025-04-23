@@ -1,6 +1,5 @@
 import random
-from termios import TIOCPKT_DOSTOP
-
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, F
 from django.http import QueryDict, HttpResponseRedirect
@@ -8,14 +7,34 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, FormView, DetailView
 from odpro.models import Quiz, Category, Question, SubCategory, Answer
-from odpro.forms import QuestionForm
-
+from odpro.forms import QuestionForm, UserRegistrationForm
+from django.contrib import messages
 
 # Create your views here.
 # ####################################################
 def index(request):
+    # print("DEBUG user:", request.user)
     context = {'page': 'index'}
     return render(request, 'odpro/index.html', context)
+
+# ####################################################
+
+def register(request):
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Account created successfully! You can now log in.")
+            return redirect('login')  # Or wherever you'd like to send them
+    else:
+        form = UserRegistrationForm()
+    return render(request, 'odpro/register.html', {'form': form})
+
+# ####################################################
+
+@login_required
+def odprofile(request):
+    return render(request, 'odpro/odprofile.html')
 
 # ####################################################
 
